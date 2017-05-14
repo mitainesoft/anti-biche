@@ -19,7 +19,7 @@
 byte ip_mac_last_dig = 81;
 byte mac[] = {  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, ip_mac_last_dig};
 IPAddress ip(192, 168, 1, ip_mac_last_dig);
-char rev[] = "v4.03";
+char rev[] = "v4.04";
 
 #define DEBUGLEVEL 2
 // NUM_SWITCH # of controlled relays. 4 MAX !
@@ -911,7 +911,7 @@ boolean checkButtonAnalog () {
       }
           //delay (int(ledflashdelay));
       }
-    if (DEBUGLEVEL>=2) {
+    if (DEBUGLEVEL>=3) {
       if (val >0 || DEBUGLEVEL >5) {
         Serial.print(F("Button Input value Analog Port:")); 
         Serial.println(val);
