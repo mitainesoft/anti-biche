@@ -19,7 +19,7 @@
 byte ip_mac_last_dig = 81;
 byte mac[] = {  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, ip_mac_last_dig};
 IPAddress ip(192, 168, 1, ip_mac_last_dig);
-char rev[] = "v4.04";
+char rev[] = "v4.05";
 
 #define DEBUGLEVEL 2
 // NUM_SWITCH # of controlled relays. 4 MAX !
@@ -69,7 +69,7 @@ byte _timer_status[NUM_SWITCH];
 //Zone 0 is relay #1. 0 is array position.
 #define ZONE_FOR_DURATION_CHOICE_LED_STATUS 0
 // PUSHBUTTON_PRESS_LEVEL_SENSITIVITY 250 good quality connection !  175 is cheapo button !
-#define PUSHBUTTON_PRESS_LEVEL_SENSITIVITY 150
+#define PUSHBUTTON_PRESS_LEVEL_SENSITIVITY 250
 
 // relay #1 = 7 20160807
 #define RELAY1_DIGPIN 7
@@ -912,8 +912,8 @@ boolean checkButtonAnalog () {
           //delay (int(ledflashdelay));
       }
     if (DEBUGLEVEL>=3) {
-      if (val >0 || DEBUGLEVEL >5) {
-        Serial.print(F("Button Input value Analog Port:")); 
+      if (val >0) {
+        Serial.print(F("Button Input value Analog pin:")); 
         Serial.println(val);
       }   
     }          // debug value
