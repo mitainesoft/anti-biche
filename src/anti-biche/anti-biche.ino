@@ -19,12 +19,12 @@
 byte ip_mac_last_dig = 81;
 byte mac[] = {  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, ip_mac_last_dig};
 IPAddress ip(192, 168, 1, ip_mac_last_dig);
-char rev[] = "v4.05";
+char rev[] = "v4.10";
 
 #define DEBUGLEVEL 2
 // NUM_SWITCH # of controlled relays. 4 MAX !
-#define NUM_SWITCH 4
-#define NBR_RELAY_INSTALLED 4
+#define NUM_SWITCH 2
+#define NBR_RELAY_INSTALLED 2
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -70,6 +70,7 @@ byte _timer_status[NUM_SWITCH];
 #define ZONE_FOR_DURATION_CHOICE_LED_STATUS 0
 // PUSHBUTTON_PRESS_LEVEL_SENSITIVITY 250 good quality connection !  175 is cheapo button !
 #define PUSHBUTTON_PRESS_LEVEL_SENSITIVITY 250
+#define PUSHBUTTON_TIME_TO_CONSIDER_PRESSED 1000
 
 // relay #1 = 7 20160807
 #define RELAY1_DIGPIN 7
@@ -354,7 +355,7 @@ int  processCommand(String webCmd) {
     Serial.println(_LOW_HIGH_TXT[setpin]);
     triggerPin(swi,setpin);
 
-    if (setpin==_default_On_Off[swi]) { 
+    if (setpin ==_default_On_Off[swi]) { 
       _timeLeftMillis[swi]=0;
       _timer_status[swi]=TIMER_OFF; //Timer Off
       _duration_choices[swi]=0; //reset
@@ -471,8 +472,7 @@ int printSwitchTable(EthernetClient client)
         client.print(F("<form METHOD=get action=\""));
         client.print(F("\">"));
         sprintf(txt, "<h2><center>%s (#%d)</center></h2> ", relayZoneDesc[swi] ,swi+1); 
-//        sprintf(txt, "<h2><center><font color=\"%s\"> %s (#%d) </font></center></h2> ", tableFontColor[swi], relayZoneDesc[swi] ,swi+1); 
-        
+       
         client.print(txt);
         
         //add_string(buf, txt, plen);
@@ -517,13 +517,10 @@ int printSwitchTable(EthernetClient client)
           char strbuf[20];
           getTimePrintOut(_duration_available[tmpnextdur],strbuf);
           sprintf(txt,"<input type=submit style=\"font-size:14pt;color:black;background-color:LightGray\" value=\"Switch %s %s \"></form>",nextstattxt,strbuf);
-          //sprintf(txt,"<input type=submit value=\"Switch %s %s \"></form>",nextstattxt,strbuf);
           client.print(txt);
         } else {
           sprintf(txt, "<input type=hidden name=cmd value=%03d>", 2 + swi * 2); 
           client.print(txt); 
-
-          //const char hbuf[]="style=\"font-size:14pt;color:black;background-color:white;border:3px solid #336600;padding:3px\"";
           const char hbuf[]=" style=\"font-size:14pt;color:black;background-color:white\" ";
           //Memory problems!!!
 
@@ -536,13 +533,13 @@ int printSwitchTable(EthernetClient client)
       }
       client.print(F("</tr></table>"));
       
-      sprintf(txt,"*** Meteocureuil   * Temperature:<font size=\"9\" color=\"blue\"> %dc </font>   \n * Humidite:<font size=\"9\" color=\"orange\"> %d%% </font>***",
+      sprintf(txt,"*** Meteocureuil * Temperature:<font size=\"9\" color=\"blue\"> %dc </font>   \n * Humidite:<font size=\"9\" color=\"orange\"> %d%% </font>***",
           (int)_DHT21_TEMP_HUM[0],
           (int)_DHT21_TEMP_HUM[1]);
   client.println(F("\n<h2 align=\"left\"> "));
   client.println(txt);
   client.println(F("</h2>"));
-  client.println(F("\n\n\n<h3 align=\"left\">*** Cadenas   * <font color=\"Maroon\">Lund:2341</font>   * <font color=\"DarkBlue\">Princecraft:4612</font> *** "));
+  client.println(F("\n\n\n<h3 align=\"left\">**<font color=\"Maroon\">Lund:2341</font>   * <font color=\"DarkBlue\">Princecraft:4612</font> *** "));
   client.println(F("</h3>"));
   client.println(F("\n\n\n\n<h4 align=\"left\">&copy; MitaineSoft 2016 - "));
   client.println(rev);
@@ -846,13 +843,36 @@ void durationChoicesAnalogPins () {
 // of web interface on ZONE_FOR_DURATION_CHOICE_LED_STATUS
 //////////////////////////////////////////////////////////////////////
 boolean checkButtonAnalog () {
-
-  byte val = analogRead(PUSH_BUTTON_ANALOG_IN);    // read the input pin
   byte setpin = LOW;
   byte swi=ZONE_FOR_DURATION_CHOICE_LED_STATUS;
   int ledflashdelay=100;
+  
+  boolean button_pressed=false;
+  boolean button_touched=false;
+  //val =0 1-254 if not grounded !  when not pressed. 255 when button pressed with perfect connection!
+  byte val = analogRead(PUSH_BUTTON_ANALOG_IN);    // read the input pin
+  unsigned long ref_time=millis();
+  while (val >= PUSHBUTTON_PRESS_LEVEL_SENSITIVITY && button_pressed==false ) {
+    if (millis()  > (ref_time + PUSHBUTTON_TIME_TO_CONSIDER_PRESSED)) {
+         if (DEBUGLEVEL >=2) {
+          Serial.print(F("Analog Button Pressed Accepted. val="));
+          Serial.println(val);
+        } //debug
+        button_pressed=true;
+    } else {//if PUSHBUTTON_TIME_TO_CONSIDER_PRESSED
+        button_touched=true;
+        if (DEBUGLEVEL >=3) {
+          Serial.print(F("Analog Button pressed checking.. . Analog val="));
+          Serial.println(val);
+        } //debug
+    }
+    val = analogRead(PUSH_BUTTON_ANALOG_IN);
+  }//while val
 
-  if (val >= PUSHBUTTON_PRESS_LEVEL_SENSITIVITY) {  //val =0 1-254 if not grounded !  when not pressed. 255 when button pressed with perfect connection!
+  if (button_touched && !button_pressed) {
+    Serial.println(F("Analog Button touched but not long enough."));
+  }
+  if (button_pressed) {  
     _led_flash_time_interval=millis();  
     if (_duration_choices[swi]< (NBR_DURATIONS_CHOICES-1)) {
       setpin=HIGH;
@@ -883,12 +903,9 @@ boolean checkButtonAnalog () {
         _timeLeftMillis[swi]=_duration_available[tmp_next_choice];
         _duration_choices[swi]=tmp_next_choice;
     }
-    if (DEBUGLEVEL >2) {
-      Serial.print(F("Button pressed.  Duration next_choice=")); 
-      Serial.println(tmp_next_choice);
-    }
-    delay(400);
-  } else { // val button NOT pressed
+    
+    //delay(400);
+  } else { // button NOT pressed
     if (millis() > (_led_flash_time_interval + 3000)){ 
       readOutputStatuses();
       _led_flash_time_interval=millis();  
@@ -911,9 +928,9 @@ boolean checkButtonAnalog () {
       }
           //delay (int(ledflashdelay));
       }
-    if (DEBUGLEVEL>=3) {
+    if (DEBUGLEVEL>=4) {
       if (val >0) {
-        Serial.print(F("Button Input value Analog pin:")); 
+        Serial.print(F("Analog Button Input not considered pressed:")); 
         Serial.println(val);
       }   
     }          // debug value
