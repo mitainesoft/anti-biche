@@ -19,7 +19,7 @@
 byte ip_mac_last_dig = 81;
 byte mac[] = {  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, ip_mac_last_dig};
 IPAddress ip(192, 168, 1, ip_mac_last_dig);
-char rev[] = "v4.10";
+char rev[] = "v4.12";
 
 #define DEBUGLEVEL 2
 // NUM_SWITCH # of controlled relays. 4 MAX !
@@ -70,7 +70,10 @@ byte _timer_status[NUM_SWITCH];
 #define ZONE_FOR_DURATION_CHOICE_LED_STATUS 0
 // PUSHBUTTON_PRESS_LEVEL_SENSITIVITY 250 good quality connection !  175 is cheapo button !
 #define PUSHBUTTON_PRESS_LEVEL_SENSITIVITY 250
-#define PUSHBUTTON_TIME_TO_CONSIDER_PRESSED 500
+#define PUSHBUTTON_TIME_TO_CONSIDER_PRESSED 1000
+unsigned long _button_last_time_pressed_accepted  = millis();
+#define PUSHBUTTON_TIME_BETWEEN_PRESSED 2000
+
 
 // relay #1 = 7 20160807
 #define RELAY1_DIGPIN 7
@@ -178,7 +181,7 @@ void loop() {
   checkForClient();
 
   processTimers();
-  delay(500);
+  delay(100);  // 500 removed in v4.11
   if (millis() > (lastTempHumReadTime + 30000)){   
     readTempDHT21();
     lastTempHumReadTime=millis();
@@ -852,7 +855,8 @@ boolean checkButtonAnalog () {
   //val =0 1-254 if not grounded !  when not pressed. 255 when button pressed with perfect connection!
   byte val = analogRead(PUSH_BUTTON_ANALOG_IN);    // read the input pin
   unsigned long ref_time=millis();
-  while (val >= PUSHBUTTON_PRESS_LEVEL_SENSITIVITY && button_pressed==false ) {
+  while (val >= PUSHBUTTON_PRESS_LEVEL_SENSITIVITY && button_pressed==false 
+          && millis() > ( _button_last_time_pressed_accepted + PUSHBUTTON_TIME_BETWEEN_PRESSED )) {
     if (millis()  > (ref_time + PUSHBUTTON_TIME_TO_CONSIDER_PRESSED)) {
          if (DEBUGLEVEL >=2) {
           Serial.print(F("Analog Button Pressed Accepted. val="));
@@ -872,7 +876,8 @@ boolean checkButtonAnalog () {
   if (button_touched && !button_pressed) {
     Serial.println(F("Analog Button touched but not long enough."));
   }
-  if (button_pressed) {  
+  if (button_pressed) { 
+    _button_last_time_pressed_accepted=millis(); 
     _led_flash_time_interval=millis();  
     if (_duration_choices[swi]< (NBR_DURATIONS_CHOICES-1)) {
       setpin=HIGH;
