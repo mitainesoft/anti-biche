@@ -19,7 +19,7 @@
 byte ip_mac_last_dig = 81;
 byte mac[] = {  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, ip_mac_last_dig};
 IPAddress ip(192, 168, 1, ip_mac_last_dig);
-char rev[] = "v4.12";
+char rev[] = "v4.13";
 
 #define DEBUGLEVEL 2
 // NUM_SWITCH # of controlled relays. 4 MAX !
@@ -72,7 +72,7 @@ byte _timer_status[NUM_SWITCH];
 #define PUSHBUTTON_PRESS_LEVEL_SENSITIVITY 250
 #define PUSHBUTTON_TIME_TO_CONSIDER_PRESSED 1000
 unsigned long _button_last_time_pressed_accepted  = millis();
-#define PUSHBUTTON_TIME_BETWEEN_PRESSED 2000
+#define PUSHBUTTON_TIME_BETWEEN_PRESSED 500
 
 
 // relay #1 = 7 20160807
@@ -661,7 +661,7 @@ void initDigPin() {
       delay (500);
       triggerPin(i,HIGH);
       digitalWrite(LED_STATUS_ZONE1_DIGITAL_OUT, HIGH);
-      delay(1000);
+      delay(2000);
       triggerPin(i,LOW);
       digitalWrite(LED_STATUS_ZONE1_DIGITAL_OUT, LOW);
     }
@@ -877,6 +877,13 @@ boolean checkButtonAnalog () {
     Serial.println(F("Analog Button touched but not long enough."));
   }
   if (button_pressed) { 
+     digitalWrite(LED_STATUS_ZONE1_DIGITAL_OUT, LOW);
+     delay (50);
+     digitalWrite(LED_STATUS_ZONE1_DIGITAL_OUT, HIGH);
+     delay (100);
+     digitalWrite(LED_STATUS_ZONE1_DIGITAL_OUT, LOW);
+     delay (150);
+     digitalWrite(LED_STATUS_ZONE1_DIGITAL_OUT, HIGH);
     _button_last_time_pressed_accepted=millis(); 
     _led_flash_time_interval=millis();  
     if (_duration_choices[swi]< (NBR_DURATIONS_CHOICES-1)) {
