@@ -19,7 +19,7 @@
 byte ip_mac_last_dig = 81;
 byte mac[] = {  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, ip_mac_last_dig};
 IPAddress ip(192, 168, 1, ip_mac_last_dig);
-char rev[] = "v4.13";
+char rev[] = "v5.00";
 
 #define DEBUGLEVEL 2
 // NUM_SWITCH # of controlled relays. 4 MAX !
@@ -210,8 +210,9 @@ void checkForClient(){
   unsigned long lasttimemillis=0;
   unsigned long tmpmil=0;
   unsigned long tmpcurmil=0;
+  char msgtxt[40];
      
-  if (client) {
+  if (client) { //client = server.available();
 
     while (client.connected()) {
       
@@ -282,12 +283,14 @@ void checkForClient(){
   printHtmlFooter(client); //Prints the html footer
  
   } 
-else
+else //client != server.available();
    {  //if there is no client 
       //And time of last page was served is more then a minute.
       if (millis() > (timeConnectedAt + 60000)){           
           timeConnectedAt=millis();
-          if (DEBUGLEVEL>4) {
+          delay(300);
+          client.stop();
+          if (DEBUGLEVEL>0) {
             Serial.println(F("No HTTP client for the last 60sec..."));           
           }
       }
