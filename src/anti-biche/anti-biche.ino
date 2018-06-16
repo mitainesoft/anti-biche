@@ -19,7 +19,7 @@
 byte ip_mac_last_dig = 81;
 byte mac[] = {  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, ip_mac_last_dig};
 IPAddress ip(192, 168, 1, ip_mac_last_dig);
-char rev[] = "v5.00";
+char rev[] = "v5.01";
 
 #define DEBUGLEVEL 2
 // NUM_SWITCH # of controlled relays. 4 MAX !
@@ -69,8 +69,8 @@ byte _timer_status[NUM_SWITCH];
 //Zone 0 is relay #1. 0 is array position.
 #define ZONE_FOR_DURATION_CHOICE_LED_STATUS 0
 // PUSHBUTTON_PRESS_LEVEL_SENSITIVITY 250 good quality connection !  175 is cheapo button !
-#define PUSHBUTTON_PRESS_LEVEL_SENSITIVITY 250
-#define PUSHBUTTON_TIME_TO_CONSIDER_PRESSED 1000
+#define PUSHBUTTON_PRESS_LEVEL_SENSITIVITY 220
+#define PUSHBUTTON_TIME_TO_CONSIDER_PRESSED 900
 unsigned long _button_last_time_pressed_accepted  = millis();
 #define PUSHBUTTON_TIME_BETWEEN_PRESSED 500
 
