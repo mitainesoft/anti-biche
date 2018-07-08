@@ -19,7 +19,7 @@
 byte ip_mac_last_dig = 81;
 byte mac[] = {  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, ip_mac_last_dig};
 IPAddress ip(192, 168, 1, ip_mac_last_dig);
-char rev[] = "v5.01";
+char rev[] = "v6.01";
 
 #define DEBUGLEVEL 2
 // NUM_SWITCH # of controlled relays. 4 MAX !
@@ -46,13 +46,15 @@ unsigned long _timeLeftMillis[NUM_SWITCH];
 //unsigned long _timeLeftMin=0;
 byte on_off[NUM_SWITCH];  //HIGH or LOW
 
-#define NBR_DURATIONS_CHOICES 5
+#define NBR_DURATIONS_CHOICES 6
 #define TIME_YOU_HAVE_TO_MAKE_A_CHOICE 15000
 #define TIMELEFTDEFAULT 900999
-unsigned long _duration_available[]= {0,TIMELEFTDEFAULT,7202000,28802000,43202000};
-//Test Values
-//#define TIMELEFTDEFAULT 30999
-//unsigned long _duration_available[]= {0,TIMELEFTDEFAULT,60000,90000,120000};
+#define TIME12H 43202000
+#define TIME08H 28802000
+#define TIME04H 14402000
+#define TIME02H 7202000
+#define TIME15M 900999
+unsigned long _duration_available[]= {0,TIMELEFTDEFAULT,TIME02H,TIME04H,TIME08H,TIME12H};
 
 int _duration_choices[NUM_SWITCH];
 
@@ -545,7 +547,7 @@ int printSwitchTable(EthernetClient client)
   client.println(F("\n<h2 align=\"left\"> "));
   client.println(txt);
   client.println(F("</h2>"));
-  client.println(F("\n\n\n<h3 align=\"left\">**<font color=\"Maroon\">Lund:2341</font>   * <font color=\"DarkBlue\">Princecraft:4612</font> *** "));
+  client.println(F("\n\n\n<h3 align=\"left\">**<font color=\"Maroon\">Lund:6413</font>   * <font color=\"DarkBlue\">Princecraft:4612-6226</font> *** "));
   client.println(F("</h3>"));
   client.println(F("\n\n\n\n<h4 align=\"left\">&copy; MitaineSoft 2016 - "));
   client.println(rev);
@@ -851,7 +853,7 @@ void durationChoicesAnalogPins () {
 boolean checkButtonAnalog () {
   byte setpin = LOW;
   byte swi=ZONE_FOR_DURATION_CHOICE_LED_STATUS;
-  int ledflashdelay=100;
+  int ledflashdelay=120;
   
   boolean button_pressed=false;
   boolean button_touched=false;
