@@ -19,7 +19,7 @@
 byte ip_mac_last_dig = 81;
 byte mac[] = {  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, ip_mac_last_dig};
 IPAddress ip(192, 168, 1, ip_mac_last_dig);
-char rev[] = "v6.01";
+char rev[] = "v7.00";
 
 #define DEBUGLEVEL 2
 // NUM_SWITCH # of controlled relays. 4 MAX !
@@ -70,6 +70,8 @@ byte _timer_status[NUM_SWITCH];
 
 //Zone 0 is relay #1. 0 is array position.
 #define ZONE_FOR_DURATION_CHOICE_LED_STATUS 0
+#define PUSH_BUTTON_ZONE1_ANALOG_IN 0
+#define PUSH_BUTTON_ZONE2_ANALOG_IN 2
 // PUSHBUTTON_PRESS_LEVEL_SENSITIVITY 250 good quality connection !  175 is cheapo button !
 #define PUSHBUTTON_PRESS_LEVEL_SENSITIVITY 220
 #define PUSHBUTTON_TIME_TO_CONSIDER_PRESSED 900
@@ -83,12 +85,13 @@ unsigned long _button_last_time_pressed_accepted  = millis();
 #define RELAY3_DIGPIN 5
 #define RELAY4_DIGPIN 4
 
-#define PUSH_BUTTON_ANALOG_IN 0
 #define DHT21_PIN 8
 #define LED_STATUS_ZONE1_DIGITAL_OUT 9
 
 // Select the pinout address
 const byte outputAddress[] = {RELAY1_DIGPIN,RELAY2_DIGPIN,RELAY3_DIGPIN,RELAY4_DIGPIN}; //Allocate x spaces and name the output pin address.
+const byte inputAnaAddress[] = {PUSH_BUTTON_ZONE1_ANALOG_IN,PUSH_BUTTON_ZONE2_ANALOG_IN}; // This way in case a port is defective i.e. my A1 is defective !!!
+
 
 const char *relayZoneDesc[] = { "Chasse-Biches", "Lum Sous-Sol", "Mega-Spot1", "Mega-Spot2" };
 //char *tableFontColor[8] = { "#8B4513","#228B22","#FF8C00","#FF1493","#8A2BE2","#8A2BE2","#8A2BE2","#8A2BE2" }; // http://www.w3schools.com/colors/colors_names.asp
@@ -159,8 +162,9 @@ void setup() {
   Serial.println(DHT_LIB_VERSION);
 
   initDigPin();
-  Serial.print(F("Push Button Analog IN: "));
-  Serial.println(PUSH_BUTTON_ANALOG_IN);
+  Serial.println(F("Push Buttons Analog INs: "));
+  Serial.println(PUSH_BUTTON_ZONE1_ANALOG_IN);
+  Serial.println(PUSH_BUTTON_ZONE2_ANALOG_IN);
   Serial.print(F("DHT21 Temp/Hum Sensor Digital IN: "));
   Serial.println(DHT21_PIN);
   Serial.print(F("LED Zone1 Digital OUT: "));
@@ -851,108 +855,116 @@ void durationChoicesAnalogPins () {
 // of web interface on ZONE_FOR_DURATION_CHOICE_LED_STATUS
 //////////////////////////////////////////////////////////////////////
 boolean checkButtonAnalog () {
-  byte setpin = LOW;
-  byte swi=ZONE_FOR_DURATION_CHOICE_LED_STATUS;
   int ledflashdelay=120;
-  
-  boolean button_pressed=false;
-  boolean button_touched=false;
-  //val =0 1-254 if not grounded !  when not pressed. 255 when button pressed with perfect connection!
-  byte val = analogRead(PUSH_BUTTON_ANALOG_IN);    // read the input pin
-  unsigned long ref_time=millis();
-  while (val >= PUSHBUTTON_PRESS_LEVEL_SENSITIVITY && button_pressed==false 
-          && millis() > ( _button_last_time_pressed_accepted + PUSHBUTTON_TIME_BETWEEN_PRESSED )) {
-    if (millis()  > (ref_time + PUSHBUTTON_TIME_TO_CONSIDER_PRESSED)) {
-         if (DEBUGLEVEL >=2) {
-          Serial.print(F("Analog Button Pressed Accepted. val="));
-          Serial.println(val);
-        } //debug
-        button_pressed=true;
-    } else {//if PUSHBUTTON_TIME_TO_CONSIDER_PRESSED
-        button_touched=true;
-        if (DEBUGLEVEL >=3) {
-          Serial.print(F("Analog Button pressed checking.. . Analog val="));
-          Serial.println(val);
-        } //debug
-    }
-    val = analogRead(PUSH_BUTTON_ANALOG_IN);
-  }//while val
+  //  PUSH_BUTTON_ZONE1_ANALOG_IN; linked to ZONE_FOR_DURATION_CHOICE_LED_STATUS;
 
-  if (button_touched && !button_pressed) {
-    Serial.println(F("Analog Button touched but not long enough."));
-  }
-  if (button_pressed) { 
-     digitalWrite(LED_STATUS_ZONE1_DIGITAL_OUT, LOW);
-     delay (50);
-     digitalWrite(LED_STATUS_ZONE1_DIGITAL_OUT, HIGH);
-     delay (100);
-     digitalWrite(LED_STATUS_ZONE1_DIGITAL_OUT, LOW);
-     delay (150);
-     digitalWrite(LED_STATUS_ZONE1_DIGITAL_OUT, HIGH);
-    _button_last_time_pressed_accepted=millis(); 
-    _led_flash_time_interval=millis();  
-    if (_duration_choices[swi]< (NBR_DURATIONS_CHOICES-1)) {
-      setpin=HIGH;
-    } else {
-      setpin=LOW;
-    }
-    int tmp_next_choice=0;
-    on_off[swi]=setpin;
-    triggerPin(swi,setpin);
-    //devrait combine ce code avec process command !
-    if (setpin==_default_On_Off[swi]) { 
-      _timeLeftMillis[swi]=0;
-      _timer_status[swi]=TIMER_OFF; //Timer Off
-      _duration_choices[swi]=0; //reset
-    } else {
-        _timer_status[swi]=TIMER_ON; //Timer ON    
-        _currentMillis[swi]=millis();
-        _previousMillis[swi]=millis(); 
-        //duration_choices[i]
-        tmp_next_choice=_duration_choices[swi]+1;
-        if (tmp_next_choice>=NBR_DURATIONS_CHOICES) {
-          // Next choice is 0
-          _duration_choices[swi]=0;
-        } else {
-          // A few off choices
-          _duration_choices[swi]=tmp_next_choice;
-        }
-        _timeLeftMillis[swi]=_duration_available[tmp_next_choice];
-        _duration_choices[swi]=tmp_next_choice;
-    }
+  for (int swi=0;swi<=1;swi++){
+    int ana_port=inputAnaAddress[swi]; 
+    byte setpin = LOW;
     
-    //delay(400);
-  } else { // button NOT pressed
-    if (millis() > (_led_flash_time_interval + 3000)){ 
-      readOutputStatuses();
-      _led_flash_time_interval=millis();  
-      //_duration_available
-      int ledloop=0;
-      if (_timeLeftMillis[swi] >1000) {
-        for (int da=0;da<NBR_DURATIONS_CHOICES;da++) {
-          if (_timeLeftMillis[ZONE_FOR_DURATION_CHOICE_LED_STATUS] > _duration_available[da]) {
-              ledloop++; //Do at least one loop
-          } else {
-            da=NBR_DURATIONS_CHOICES; //exist loop
-          }
-        }
-      }      
-      for (int i=0;i<ledloop;i++) {
-        digitalWrite(LED_STATUS_ZONE1_DIGITAL_OUT, LOW);
-        delay (int(ledflashdelay/ledloop));
-        digitalWrite(LED_STATUS_ZONE1_DIGITAL_OUT, HIGH);
-        delay (int(ledflashdelay/ledloop));
+    boolean button_pressed=false;
+    boolean button_touched=false;
+    //val =0 1-254 if not grounded !  when not pressed. 255 when button pressed with perfect connection!
+    byte val = analogRead(ana_port);    // read the input pin
+    unsigned long ref_time=millis();
+    while (val >= PUSHBUTTON_PRESS_LEVEL_SENSITIVITY && button_pressed==false 
+            && millis() > ( _button_last_time_pressed_accepted + PUSHBUTTON_TIME_BETWEEN_PRESSED )) {
+      if (millis()  > (ref_time + PUSHBUTTON_TIME_TO_CONSIDER_PRESSED)) {
+           if (DEBUGLEVEL >=2) {
+            Serial.print(F("Analog Button #"));
+            Serial.print(swi);
+            Serial.print(F(" Pressed Accepted. val="));
+            Serial.println(val);
+          } //debug
+          button_pressed=true;
+      } else {//if PUSHBUTTON_TIME_TO_CONSIDER_PRESSED
+          button_touched=true;
+          if (DEBUGLEVEL >=3) {
+            Serial.print(F("Analog Button "));
+            Serial.print(swi);
+            Serial.print(F(" pressed checking.. . Analog val="));
+            Serial.println(val);
+          } //debug
       }
-          //delay (int(ledflashdelay));
-      }
-    if (DEBUGLEVEL>=4) {
-      if (val >0) {
-        Serial.print(F("Analog Button Input not considered pressed:")); 
-        Serial.println(val);
-      }   
-    }          // debug value
-
+      val = analogRead(ana_port);
+    }//while val
   
+    if (button_touched && !button_pressed) {
+      Serial.println(F("Analog Button touched but not long enough."));
+    }
+    if (button_pressed) { 
+       digitalWrite(LED_STATUS_ZONE1_DIGITAL_OUT, LOW);
+       delay (50);
+       digitalWrite(LED_STATUS_ZONE1_DIGITAL_OUT, HIGH);
+       delay (100);
+       digitalWrite(LED_STATUS_ZONE1_DIGITAL_OUT, LOW);
+       delay (150);
+       digitalWrite(LED_STATUS_ZONE1_DIGITAL_OUT, HIGH);
+      _button_last_time_pressed_accepted=millis(); 
+      _led_flash_time_interval=millis();  
+      if (_duration_choices[swi]< (NBR_DURATIONS_CHOICES-1)) {
+        setpin=HIGH;
+      } else {
+        setpin=LOW;
+      }
+      int tmp_next_choice=0;
+      on_off[swi]=setpin;
+      triggerPin(swi,setpin);
+      //devrait combine ce code avec process command !
+      if (setpin==_default_On_Off[swi]) { 
+        _timeLeftMillis[swi]=0;
+        _timer_status[swi]=TIMER_OFF; //Timer Off
+        _duration_choices[swi]=0; //reset
+      } else {
+          _timer_status[swi]=TIMER_ON; //Timer ON    
+          _currentMillis[swi]=millis();
+          _previousMillis[swi]=millis(); 
+          //duration_choices[i]
+          tmp_next_choice=_duration_choices[swi]+1;
+          if (tmp_next_choice>=NBR_DURATIONS_CHOICES) {
+            // Next choice is 0
+            _duration_choices[swi]=0;
+          } else {
+            // A few off choices
+            _duration_choices[swi]=tmp_next_choice;
+          }
+          _timeLeftMillis[swi]=_duration_available[tmp_next_choice];
+          _duration_choices[swi]=tmp_next_choice;
+      }
+      
+      //delay(400);
+    } else { // button NOT pressed
+      if (millis() > (_led_flash_time_interval + 3000)){ 
+        readOutputStatuses();
+        _led_flash_time_interval=millis();  
+        //_duration_available
+        int ledloop=0;
+        if (_timeLeftMillis[swi] >1000) {
+          for (int da=0;da<NBR_DURATIONS_CHOICES;da++) {
+            if (_timeLeftMillis[ZONE_FOR_DURATION_CHOICE_LED_STATUS] > _duration_available[da]) {
+                ledloop++; //Do at least one loop
+            } else {
+              da=NBR_DURATIONS_CHOICES; //exist loop
+            }
+          }
+        }      
+        for (int i=0;i<ledloop;i++) {
+          digitalWrite(LED_STATUS_ZONE1_DIGITAL_OUT, LOW);
+          delay (int(ledflashdelay/ledloop));
+          digitalWrite(LED_STATUS_ZONE1_DIGITAL_OUT, HIGH);
+          delay (int(ledflashdelay/ledloop));
+        }
+            //delay (int(ledflashdelay));
+        }
+      if (DEBUGLEVEL>=4) {
+        if (val >0) {
+          Serial.print(F("Analog Button Input not considered pressed:")); 
+          Serial.println(val);
+        }   
+      }          // debug value
+  
+    
+    }
   }
 }
 
