@@ -19,7 +19,7 @@
 byte ip_mac_last_dig = 81;
 byte mac[] = {  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, ip_mac_last_dig};
 IPAddress ip(192, 168, 1, ip_mac_last_dig);
-char rev[] = "v7.00";
+char rev[] = "v7.01";
 
 #define DEBUGLEVEL 2
 // NUM_SWITCH # of controlled relays. 4 MAX !
@@ -551,9 +551,9 @@ int printSwitchTable(EthernetClient client)
   client.println(F("\n<h2 align=\"left\"> "));
   client.println(txt);
   client.println(F("</h2>"));
-  client.println(F("\n\n\n<h3 align=\"left\">**<font color=\"Maroon\">Lund:6413</font>   * <font color=\"DarkBlue\">Princecraft:4612-6226</font> *** "));
+  client.println(F("\n\n\n<h3 align=\"left\">**<font color=\"Maroon\">Lund:6413</font>   * <font color=\"DarkBlue\">Princecraft:6226</font> *** "));
   client.println(F("</h3>"));
-  client.println(F("\n\n\n\n<h4 align=\"left\">&copy; MitaineSoft 2016 - "));
+  client.println(F("\n\n\n\n<h4 align=\"left\">&copy; MitaineSoft 2019 - "));
   client.println(rev);
   client.println(F("</h4>"));
 
