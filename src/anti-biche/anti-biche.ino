@@ -19,7 +19,7 @@
 byte ip_mac_last_dig = 81;
 byte mac[] = {  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, ip_mac_last_dig};
 IPAddress ip(192, 168, 1, ip_mac_last_dig);
-char rev[] = "v7.01";
+char rev[] = "v7.02";
 
 #define DEBUGLEVEL 2
 // NUM_SWITCH # of controlled relays. 4 MAX !
@@ -72,9 +72,9 @@ byte _timer_status[NUM_SWITCH];
 #define ZONE_FOR_DURATION_CHOICE_LED_STATUS 0
 #define PUSH_BUTTON_ZONE1_ANALOG_IN 0
 #define PUSH_BUTTON_ZONE2_ANALOG_IN 2
-// PUSHBUTTON_PRESS_LEVEL_SENSITIVITY 250 good quality connection !  175 is cheapo button !
-#define PUSHBUTTON_PRESS_LEVEL_SENSITIVITY 220
-#define PUSHBUTTON_TIME_TO_CONSIDER_PRESSED 900
+// PUSHBUTTON_PRESS_LEVEL_SENSITIVITY 250 good quality connection !  100 is a degrated button that spent time in winter and humidity ! !
+#define PUSHBUTTON_PRESS_LEVEL_SENSITIVITY 100
+#define PUSHBUTTON_TIME_TO_CONSIDER_PRESSED 500
 unsigned long _button_last_time_pressed_accepted  = millis();
 #define PUSHBUTTON_TIME_BETWEEN_PRESSED 500
 
@@ -890,7 +890,11 @@ boolean checkButtonAnalog () {
     }//while val
   
     if (button_touched && !button_pressed) {
-      Serial.println(F("Analog Button touched but not long enough."));
+      Serial.print(F("Analog Button touched but not long enough. (#"));
+      Serial.print(swi);
+      Serial.print(F(" val="));
+      Serial.print(val);
+      Serial.println(F(")"));
     }
     if (button_pressed) { 
        digitalWrite(LED_STATUS_ZONE1_DIGITAL_OUT, LOW);
