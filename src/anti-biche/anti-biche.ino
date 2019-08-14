@@ -19,13 +19,16 @@
 byte ip_mac_last_dig = 81;
 byte mac[] = {  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, ip_mac_last_dig};
 IPAddress ip(192, 168, 1, ip_mac_last_dig);
-char rev[] = "v7.03";
+char rev[] = "v8.00";
 
 #define DEBUGLEVEL 2
-// NUM_SWITCH # of controlled relays. 4 MAX !
-#define NUM_SWITCH 2
-#define NBR_RELAY_INSTALLED 2
 
+// NUM_SWITCH # of controlled relays. 4 MAX ! Switch button on UI
+#define NUM_SWITCH 2
+
+// Number iof relay installed to be initialized
+// Enables trigger with other zone
+#define NBR_RELAY_INSTALLED 4
 
 ////////////////////////////////////////////////////////////////////////
 //VARIABLES DECLARATION
@@ -93,6 +96,12 @@ unsigned long _button_last_time_pressed_accepted  = millis();
 const byte outputAddress[] = {RELAY1_DIGPIN,RELAY2_DIGPIN,RELAY3_DIGPIN,RELAY4_DIGPIN}; //Allocate x spaces and name the output pin address.
 const byte inputAnaAddress[] = {PUSH_BUTTON_ZONE1_ANALOG_IN,PUSH_BUTTON_ZONE2_ANALOG_IN}; // This way in case a port is defective i.e. my A1 is defective !!!
 
+// Trigger oher eXtra output address relays with ZONE1.  NBR_ZONEX to make easier coding.
+// ZONE1 below switch number 0 (swi)   
+#define ZONE1 0
+#define NBR_ZONEX 2
+// zoneX_OutputAddressClones 0:ZoneNbr 1:RELAYx_DIGPIN 2: 3:RELAYx_DIGPIN...
+const byte zoneX_OutputAddressClones[] = {ZONE1,RELAY3_DIGPIN,RELAY4_DIGPIN} ;
 
 const char *relayZoneDesc[] = { "Chasse-Biches", "Lum Sous-Sol", "Mega-Spot1", "Mega-Spot2" };
 //char *tableFontColor[8] = { "#8B4513","#228B22","#FF8C00","#FF1493","#8A2BE2","#8A2BE2","#8A2BE2","#8A2BE2" }; // http://www.w3schools.com/colors/colors_names.asp
@@ -626,25 +635,40 @@ void triggerPin(int swi,  int setpin){
   //Switching on or off outputs, reads the outputs and prints the buttons   
 
   //Setting Outputs
- 
-//Code stupide ! Needs to be fixed
-    if(setpin == HIGH) {
-      if (outputInverted[swi]){ 
-        digitalWrite(outputAddress[swi], LOW);
-      } 
-      else{
-        digitalWrite(outputAddress[swi], HIGH);
-      }
-    }
-    if(setpin == LOW){
-      if (outputInverted[swi] ){ 
-        digitalWrite(outputAddress[swi], HIGH);
-      } 
-      else{
-        digitalWrite(outputAddress[swi], LOW);
-      }
-    }
 
+  int mysetpin = setpin ;
+
+  if ( outputInverted[swi]) { //Is output inverted
+    if (DEBUGLEVEL>=2) {
+      Serial.print(F("Output revert pin="));
+      Serial.print(swi);
+      Serial.print(F(" value="));
+      Serial.println(mysetpin);
+    }
+    if(setpin == HIGH) {
+      mysetpin = LOW;
+    } else {
+      mysetpin = HIGH;
+    }
+  }
+  
+  digitalWrite(outputAddress[swi], mysetpin);
+
+  if (NBR_ZONEX > 0 ) {
+   // zoneX_OutputAddressClones 0:ZoneNbr 1:RELAYx_DIGPIN 2: 3:RELAYx_DIGPIN...
+   for (int z=1;swi == zoneX_OutputAddressClones[0] && z<=NBR_ZONEX;z++) {
+     // const byte zoneX_OutputAddressClones[] = {ZONE1,RELAY3_DIGPIN} ;
+      Serial.print(F("Zone Extra trigger copy setpin="));
+      Serial.print(outputAddress[swi]);
+      Serial.print(F(" to Xpin="));
+      Serial.print(zoneX_OutputAddressClones[z]);
+      Serial.print(F(" value="));
+      Serial.println(mysetpin);
+      digitalWrite(zoneX_OutputAddressClones[z], mysetpin);
+   }
+    
+  }
+  
 }
 
 void initDigPin() {
@@ -972,10 +996,3 @@ boolean checkButtonAnalog () {
     }
   }
 }
-
-
-
-
-
-
-
