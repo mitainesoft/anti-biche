@@ -99,9 +99,9 @@ const byte inputAnaAddress[] = {PUSH_BUTTON_ZONE1_ANALOG_IN,PUSH_BUTTON_ZONE2_AN
 // Trigger oher eXtra output address relays with ZONE1.  NBR_ZONEX to make easier coding.
 // ZONE1 below switch number 0 (swi)   
 #define ZONE1 0
-#define NBR_ZONEX 2
+#define NBR_ZONEX 1
 // zoneX_OutputAddressClones 0:ZoneNbr 1:RELAYx_DIGPIN 2: 3:RELAYx_DIGPIN...
-const byte zoneX_OutputAddressClones[] = {ZONE1,RELAY3_DIGPIN,RELAY4_DIGPIN} ;
+const byte zoneX_OutputAddressClones[] = {ZONE1,RELAY3_DIGPIN} ;
 
 const char *relayZoneDesc[] = { "Chasse-Biches", "Lum Sous-Sol", "Mega-Spot1", "Mega-Spot2" };
 //char *tableFontColor[8] = { "#8B4513","#228B22","#FF8C00","#FF1493","#8A2BE2","#8A2BE2","#8A2BE2","#8A2BE2" }; // http://www.w3schools.com/colors/colors_names.asp
