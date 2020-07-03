@@ -18,8 +18,8 @@
 
 byte ip_mac_last_dig = 81;
 byte mac[] = {  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, ip_mac_last_dig};
-IPAddress ip(192, 168, 1, ip_mac_last_dig);
-char rev[] = "v8.00";
+IPAddress ip(10, 0, 0, ip_mac_last_dig);
+char rev[] = "v8.02";
 
 #define DEBUGLEVEL 2
 
@@ -556,15 +556,16 @@ int printSwitchTable(EthernetClient client)
       client.print(F("</tr></table>"));
       
       sprintf(txt,"*** Meteocureuil * Temperature:<font size=\"9\" color=\"blue\"> %dc </font>   \n * Humidite:<font size=\"9\" color=\"orange\"> %d%% </font>***",
-          (int)_DHT21_TEMP_HUM[0],
+          (int)_DHT21_TEMP_HUM[0]-2, //Correction sensor -2c
           (int)_DHT21_TEMP_HUM[1]);
   client.println(F("\n<h2 align=\"left\"> "));
   client.println(txt);
   client.println(F("</h2>"));
-  client.println(F("\n\n\n<h3 align=\"left\">**<font color=\"Maroon\">Lund:6413</font>   * <font color=\"DarkBlue\">Princecraft:6226</font> *** "));
-  client.println(F("</h3>"));
-  client.println(F("\n\n\n\n<h4 align=\"left\">&copy; MitaineSoft 2019 - "));
+ 
+  client.println(F("\n\n\n\n<h4 align=\"left\">&copy; <font color=\"Green\">MitaineSoft 2020 </font> - "));
   client.println(rev);
+   client.println(F(".<font color=\"CRIMSON\">4300</font>.<font color=\"DarkBlue\">6226</font>.<font color=\"MAGENTA\">4671</font>"));
+  //client.println(F("</h3>"));
   client.println(F("</h4>"));
 
   client.println(F("</body>"));
