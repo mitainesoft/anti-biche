@@ -19,11 +19,11 @@
 byte ip_mac_last_dig = 81;
 byte mac[] = {  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, ip_mac_last_dig};
 IPAddress ip(10, 0, 0, ip_mac_last_dig);
-char rev[] = "v8.02";
+char rev[] = "v9.00";
 
 #define DEBUGLEVEL 2
 
-// NUM_SWITCH # of controlled relays. 4 MAX ! Switch button on UI
+// NUM_SWITCH # of controlled relays. 2 MAX ! Switch button on UI
 #define NUM_SWITCH 2
 
 // Number iof relay installed to be initialized
@@ -103,7 +103,7 @@ const byte inputAnaAddress[] = {PUSH_BUTTON_ZONE1_ANALOG_IN,PUSH_BUTTON_ZONE2_AN
 // zoneX_OutputAddressClones 0:ZoneNbr 1:RELAYx_DIGPIN 2: 3:RELAYx_DIGPIN...
 const byte zoneX_OutputAddressClones[] = {ZONE1,RELAY3_DIGPIN} ;
 
-const char *relayZoneDesc[] = { "Chasse-Biches", "Lum Sous-Sol", "Mega-Spot1", "Mega-Spot2" };
+const char *relayZoneDesc[] = { "Chasse-Biches", "Lum Sous-Sol", "Green LED Strip", "Red LED Strip" };
 //char *tableFontColor[8] = { "#8B4513","#228B22","#FF8C00","#FF1493","#8A2BE2","#8A2BE2","#8A2BE2","#8A2BE2" }; // http://www.w3schools.com/colors/colors_names.asp
 
 // Ethershield UNO PINS pins 4, 10, 11, 12, and 13.  4 conflict !?! with relay board?
@@ -155,7 +155,7 @@ void setup() {
   // start the Ethernet connection and the server:
   Ethernet.begin(mac, ip);
   server.begin();
-  Serial.print(F("Anti-Biche Web Server is at "));
+  Serial.print(F("Anti-Biche Server:"));
   Serial.println(Ethernet.localIP());
   for (int i=0;i<=3;i++) {
     //Serial.println(ip[i]) ;
