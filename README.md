@@ -27,4 +27,7 @@ Add Libraries from C:\git\mitaine\common\Arduino\libraries to Arduino IDE path
 * Set terminal baud rate *
 	# Set terminal (CTRL-SHIFT-M) to 115200 bauds
 		
+      
+      
+
 /JLC

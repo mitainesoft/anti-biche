@@ -18,8 +18,8 @@
 
 byte ip_mac_last_dig = 81;
 byte mac[] = {  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, ip_mac_last_dig};
-IPAddress ip(10, 0, 0, ip_mac_last_dig);
-char rev[] = "v9.00";
+IPAddress ip(192, 168, 1, ip_mac_last_dig);
+char rev[] = "v9.02";
 
 #define DEBUGLEVEL 2
 
@@ -49,15 +49,17 @@ unsigned long _timeLeftMillis[NUM_SWITCH];
 //unsigned long _timeLeftMin=0;
 byte on_off[NUM_SWITCH];  //HIGH or LOW
 
-#define NBR_DURATIONS_CHOICES 6
+#define NBR_DURATIONS_CHOICES 8
 #define TIME_YOU_HAVE_TO_MAKE_A_CHOICE 15000
 #define TIMELEFTDEFAULT 900999
 #define TIME12H 43202000
+#define TIME10H 36000000
 #define TIME08H 28802000
+#define TIME06H 21600000
 #define TIME04H 14402000
 #define TIME02H 7202000
 #define TIME15M 900999
-unsigned long _duration_available[]= {0,TIMELEFTDEFAULT,TIME02H,TIME04H,TIME08H,TIME12H};
+unsigned long _duration_available[]= {0,TIMELEFTDEFAULT,TIME02H,TIME04H,TIME06H,TIME08H,TIME10H,TIME12H};
 
 int _duration_choices[NUM_SWITCH];
 
