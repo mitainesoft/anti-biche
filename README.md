@@ -1,10 +1,10 @@
 ###################################################################################
-Mitainesoft Garage (c) 2019
+Mitainesoft Garage (c) 2026
 HW: arduino UNO + Ethernet shield + Relays shield + customer board !
 
 System: anti-biche
-Purpose: 	Turn off sprinklers on timers and trn on lights.  Under time super vision. 
-			Login to 192.168.1.81 (default)
+Purpose: 	Turn off sprinklers on timers and turn on lights.  Under time super vision. 
+			Login to 10.10.1.81 (default)
 
 ###################################################################################
 
@@ -23,6 +23,8 @@ Add Libraries from C:\git\mitaine\common\Arduino\libraries to Arduino IDE path
 	
 		Select Sketch --> Add Library
 		#Check at the bottom.
+        
+        Add DHTlib...
 		
 * Set terminal baud rate *
 	# Set terminal (CTRL-SHIFT-M) to 115200 bauds

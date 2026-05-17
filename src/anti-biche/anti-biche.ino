@@ -1,3 +1,5 @@
+#include <Arduino_BuiltIn.h>
+
 /*
   Anti-Biche Systeme
 
@@ -18,8 +20,8 @@
 
 byte ip_mac_last_dig = 81;
 byte mac[] = {  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, ip_mac_last_dig};
-IPAddress ip(192, 168, 1, ip_mac_last_dig);
-char rev[] = "v9.02";
+IPAddress ip(10, 10, 1, ip_mac_last_dig);
+char rev[] = "10.0";
 
 #define DEBUGLEVEL 2
 
@@ -58,8 +60,9 @@ byte on_off[NUM_SWITCH];  //HIGH or LOW
 #define TIME06H 21600000
 #define TIME04H 14402000
 #define TIME02H 7202000
+#define TIME30M 1800999
 #define TIME15M 900999
-unsigned long _duration_available[]= {0,TIMELEFTDEFAULT,TIME02H,TIME04H,TIME06H,TIME08H,TIME10H,TIME12H};
+unsigned long _duration_available[]= {0,TIME30M,TIME02H,TIME04H,TIME06H,TIME08H,TIME10H,TIME12H};
 
 int _duration_choices[NUM_SWITCH];
 
@@ -566,7 +569,7 @@ int printSwitchTable(EthernetClient client)
  
   client.println(F("\n\n\n\n<h4 align=\"left\">&copy; <font color=\"Green\">MitaineSoft 2020 </font> - "));
   client.println(rev);
-   client.println(F(".<font color=\"CRIMSON\">4300</font>.<font color=\"DarkBlue\">6226</font>.<font color=\"MAGENTA\">4671</font>"));
+  client.println(F(".<font color=\"C0C0C0\">Hunter:4300</font> <font color=\"#8C001A\">Lund:6226</font> <font color=\"DarkBlue\">Prince:4671</font> <font color=\"#3F000F\">SS:2248(CHAT)</font> <font color=\"#AA6C39\">Garage:3474(FISH)</font>" ));
   //client.println(F("</h3>"));
   client.println(F("</h4>"));
 
