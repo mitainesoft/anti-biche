@@ -1,5 +1,3 @@
-#include <Arduino_BuiltIn.h>
-
 /*
   Anti-Biche Systeme
 
@@ -108,7 +106,7 @@ const byte inputAnaAddress[] = {PUSH_BUTTON_ZONE1_ANALOG_IN,PUSH_BUTTON_ZONE2_AN
 // zoneX_OutputAddressClones 0:ZoneNbr 1:RELAYx_DIGPIN 2: 3:RELAYx_DIGPIN...
 const byte zoneX_OutputAddressClones[] = {ZONE1,RELAY3_DIGPIN} ;
 
-const char *relayZoneDesc[] = { "Chasse-Biches", "Lum Sous-Sol", "Green LED Strip", "Red LED Strip" };
+const char *relayZoneDesc[] = { "Chasse-Biches", "Rien!", "Green LED Strip", "Red LED Strip" };
 //char *tableFontColor[8] = { "#8B4513","#228B22","#FF8C00","#FF1493","#8A2BE2","#8A2BE2","#8A2BE2","#8A2BE2" }; // http://www.w3schools.com/colors/colors_names.asp
 
 // Ethershield UNO PINS pins 4, 10, 11, 12, and 13.  4 conflict !?! with relay board?
@@ -569,7 +567,7 @@ int printSwitchTable(EthernetClient client)
  
   client.println(F("\n\n\n\n<h4 align=\"left\">&copy; <font color=\"Green\">MitaineSoft 2020 </font> - "));
   client.println(rev);
-  client.println(F(".<font color=\"C0C0C0\">Hunter:4300</font> <font color=\"#8C001A\">Lund:6226</font> <font color=\"DarkBlue\">Prince:4671</font> <font color=\"#3F000F\">SS:2248(CHAT)</font> <font color=\"#AA6C39\">Garage:3474(FISH)</font>" ));
+  client.println(F(".<font color=\"C0C0C0\">Hunter:GE00</font> <font color=\"#8C001A\">Lund:NABO</font> <font color=\"DarkBlue\">Prince:HOP1</font> <font color=\"#3F000F\">SS:CHAT</font> <font color=\"#AA6C39\">Garage:FISH</font> <font color=\"#964B00\">Portes:VENT</font>" ));
   //client.println(F("</h3>"));
   client.println(F("</h4>"));
 

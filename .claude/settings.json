@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(& \"C:\\\\Users\\\\jean-\\\\.vscode\\\\extensions\\\\vscode-arduino.vscode-arduino-community-0.7.2-win32-x64\\\\assets\\\\platform\\\\win32-x64\\\\arduino-cli\\\\arduino-cli.exe\" config dump)",
+      "PowerShell(& \"C:\\\\Users\\\\jean-\\\\.vscode\\\\extensions\\\\vscode-arduino.vscode-arduino-community-0.7.2-win32-x64\\\\assets\\\\platform\\\\win32-x64\\\\arduino-cli\\\\arduino-cli.exe\" config set directories.user \"C:\\\\git\\\\common\\\\Arduino\")",
+      "PowerShell(& \"C:\\\\Users\\\\jean-\\\\.vscode\\\\extensions\\\\vscode-arduino.vscode-arduino-community-0.7.2-win32-x64\\\\assets\\\\platform\\\\win32-x64\\\\arduino-cli\\\\arduino-cli.exe\" config init)",
+      "Read(//c/Users/jean-/Documents/Arduino/libraries/**)",
+      "PowerShell(& \"C:\\\\Users\\\\jean-\\\\.vscode\\\\extensions\\\\vscode-arduino.vscode-arduino-community-0.7.2-win32-x64\\\\assets\\\\platform\\\\win32-x64\\\\arduino-cli\\\\arduino-cli.exe\" lib install \"Ethernet\")"
+    ]
+  }
+}
