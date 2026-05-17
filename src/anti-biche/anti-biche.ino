@@ -19,12 +19,12 @@
 byte ip_mac_last_dig = 81;
 byte mac[] = {  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, ip_mac_last_dig};
 IPAddress ip(10, 10, 1, ip_mac_last_dig);
-char rev[] = "10.0";
+char rev[] = "10.1";
 
 #define DEBUGLEVEL 2
 
 // NUM_SWITCH # of controlled relays. 2 MAX ! Switch button on UI
-#define NUM_SWITCH 2
+#define NUM_SWITCH 1
 
 // Number iof relay installed to be initialized
 // Enables trigger with other zone
@@ -565,7 +565,7 @@ int printSwitchTable(EthernetClient client)
   client.println(txt);
   client.println(F("</h2>"));
  
-  client.println(F("\n\n\n\n<h4 align=\"left\">&copy; <font color=\"Green\">MitaineSoft 2020 </font> - "));
+  client.println(F("\n\n\n\n<h4 align=\"left\">&copy; <font color=\"Green\">MitaineSoft 2026</font> - "));
   client.println(rev);
   client.println(F(".<font color=\"C0C0C0\">Hunter:GE00</font> <font color=\"#8C001A\">Lund:NABO</font> <font color=\"DarkBlue\">Prince:HOP1</font> <font color=\"#3F000F\">SS:CHAT</font> <font color=\"#AA6C39\">Garage:FISH</font> <font color=\"#964B00\">Portes:VENT</font>" ));
   //client.println(F("</h3>"));
@@ -888,7 +888,8 @@ boolean checkButtonAnalog () {
   //  PUSH_BUTTON_ZONE1_ANALOG_IN; linked to ZONE_FOR_DURATION_CHOICE_LED_STATUS;
 
   for (int swi=0;swi<=1;swi++){
-    int ana_port=inputAnaAddress[swi]; 
+    int ana_port=inputAnaAddress[swi];
+    int zone = ZONE1;
     byte setpin = LOW;
     
     boolean button_pressed=false;
@@ -935,34 +936,34 @@ boolean checkButtonAnalog () {
        digitalWrite(LED_STATUS_ZONE1_DIGITAL_OUT, HIGH);
       _button_last_time_pressed_accepted=millis(); 
       _led_flash_time_interval=millis();  
-      if (_duration_choices[swi]< (NBR_DURATIONS_CHOICES-1)) {
+      if (_duration_choices[zone]< (NBR_DURATIONS_CHOICES-1)) {
         setpin=HIGH;
       } else {
         setpin=LOW;
       }
       int tmp_next_choice=0;
-      on_off[swi]=setpin;
-      triggerPin(swi,setpin);
+      on_off[zone]=setpin;
+      triggerPin(zone,setpin);
       //devrait combine ce code avec process command !
-      if (setpin==_default_On_Off[swi]) { 
-        _timeLeftMillis[swi]=0;
-        _timer_status[swi]=TIMER_OFF; //Timer Off
-        _duration_choices[swi]=0; //reset
+      if (setpin==_default_On_Off[zone]) {
+        _timeLeftMillis[zone]=0;
+        _timer_status[zone]=TIMER_OFF; //Timer Off
+        _duration_choices[zone]=0; //reset
       } else {
-          _timer_status[swi]=TIMER_ON; //Timer ON    
-          _currentMillis[swi]=millis();
-          _previousMillis[swi]=millis(); 
+          _timer_status[zone]=TIMER_ON; //Timer ON
+          _currentMillis[zone]=millis();
+          _previousMillis[zone]=millis();
           //duration_choices[i]
-          tmp_next_choice=_duration_choices[swi]+1;
+          tmp_next_choice=_duration_choices[zone]+1;
           if (tmp_next_choice>=NBR_DURATIONS_CHOICES) {
             // Next choice is 0
-            _duration_choices[swi]=0;
+            _duration_choices[zone]=0;
           } else {
             // A few off choices
-            _duration_choices[swi]=tmp_next_choice;
+            _duration_choices[zone]=tmp_next_choice;
           }
-          _timeLeftMillis[swi]=_duration_available[tmp_next_choice];
-          _duration_choices[swi]=tmp_next_choice;
+          _timeLeftMillis[zone]=_duration_available[tmp_next_choice];
+          _duration_choices[zone]=tmp_next_choice;
       }
       
       //delay(400);
@@ -972,7 +973,7 @@ boolean checkButtonAnalog () {
         _led_flash_time_interval=millis();  
         //_duration_available
         int ledloop=0;
-        if (_timeLeftMillis[swi] >1000) {
+        if (_timeLeftMillis[zone] >1000) {
           for (int da=0;da<NBR_DURATIONS_CHOICES;da++) {
             if (_timeLeftMillis[ZONE_FOR_DURATION_CHOICE_LED_STATUS] > _duration_available[da]) {
                 ledloop++; //Do at least one loop
